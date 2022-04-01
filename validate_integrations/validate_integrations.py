@@ -22,7 +22,7 @@ def owner(value):
 
 def manifest(value):
     """Validate manifest URL."""
-    if "github" in value and not "raw.githubusercontent.com" in value:
+    if "github" in value and "raw.githubusercontent.com" not in value:
         raise AssertionError("The URL for the manifest key is not a raw URL")
     return value
 
@@ -51,14 +51,11 @@ def collect_integration_files(input_files: List[str]) -> Set[Path]:
     """Collect integration files from changed files in the pull request."""
     integration_dir = Path("/validate", "components")
     integration_files = set(integration_dir.glob("**/*.json"))
-    changed_integration_files = set(
-        [
-            integration_dir / fil.split("/")[-1]
-            for fil in input_files
-            if "components" in fil
-        ]
-    ).intersection(integration_files)
-    return changed_integration_files
+    return {
+        integration_dir / fil.split("/")[-1]
+        for fil in input_files
+        if "components" in fil
+    }.intersection(integration_files)
 
 
 validate()

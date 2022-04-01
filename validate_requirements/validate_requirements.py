@@ -61,10 +61,11 @@ def collect_component_files(input_files: List[str]) -> Set[Path]:
     """Collect component files from changed files in the pull request."""
     component_dir = Path("/validate", "components")
     component_files = set(component_dir.glob("**/*.json"))
-    changed_component_files = set([component_dir / fil.split("/")[-1] for fil in input_files if "components" in fil]).intersection(
-        component_files
-    )
-    return changed_component_files
+    return {
+        component_dir / fil.split("/")[-1]
+        for fil in input_files
+        if "components" in fil
+    }.intersection(component_files)
 
 
 def get_manifest(component_file: Path) -> Optional[Dict[str, Any]]:
@@ -135,8 +136,7 @@ def get_requirements(requirements: Set[str]) -> Set[str]:
         # parse output to get a set of package names
         output = result.stdout
         lines = output.split("\n")
-        parent = lines[0].split("==")[0]  # the first line is the parent package
-        if parent:
+        if parent := lines[0].split("==")[0]:
             all_requirements.add(parent)
 
         for line in lines[1:]:  # skip the first line which we already processed
